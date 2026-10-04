@@ -1,0 +1,48 @@
+name: openwa-uat
+
+services:
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - CONTAINERS=1
+      - IMAGES=1
+      - INFO=1
+      - POST=1
+    networks:
+      - openwa-uat
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: openwa:uat
+    ports:
+      - "2786:2785"
+    environment:
+      - DEBUG=true
+      - DOCKER_SOCKET_PATH=/tmp/docker.sock
+      - DOCKER_MTU=1500
+    env_file:
+      - .env
+    mem_limit: 768m
+    volumes:
+      - openwa_uat_openwa-data:/app/data
+      - /tmp/docker.sock:/tmp/docker.sock
+    networks:
+      - openwa-uat
+    depends_on:
+      - docker-proxy
+    restart: unless-stopped
+    stop_grace_period: 60s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  openwa_uat_openwa-data:
+
+networks:
+  openwa-uat:
+    driver: bridge
