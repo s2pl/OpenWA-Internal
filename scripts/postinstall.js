@@ -116,6 +116,15 @@ function planSteps(root, env = process.env) {
       options: { stdio: 'inherit', cwd: root, env: cleanEnv },
     });
   }
+  const downloadMimetypePatcher = path.join(root, 'scripts', 'patch-wwebjs-download-mimetype.js');
+  if (fs.existsSync(downloadMimetypePatcher)) {
+    steps.push({
+      name: 'whatsapp-web.js media download mimetype (scripts/patch-wwebjs-download-mimetype.js --best-effort)',
+      command: process.execPath,
+      args: [downloadMimetypePatcher, '--best-effort'],
+      options: { stdio: 'inherit', cwd: root, env: cleanEnv },
+    });
+  }
   const baileysAppStatePatcher = path.join(root, 'scripts', 'patch-baileys-appstate.js');
   if (fs.existsSync(baileysAppStatePatcher)) {
     steps.push({
